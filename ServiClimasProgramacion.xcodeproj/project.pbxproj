@@ -1,0 +1,624 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EBC103C2304808890069302F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = EBC103C1304808890069302F /* FirebaseAuth */; };
+		EBC103C4304808890069302F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = EBC103C3304808890069302F /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EB8EF5C23041477900507AAE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EB8EF5A33041477600507AAE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EB8EF5AA3041477600507AAE;
+			remoteInfo = ServiClimasProgramacion;
+		};
+		EB8EF5CC3041477900507AAE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EB8EF5A33041477600507AAE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EB8EF5AA3041477600507AAE;
+			remoteInfo = ServiClimasProgramacion;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		EB8EF5AB3041477600507AAE /* ServiClimasProgramacion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ServiClimasProgramacion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB8EF5C13041477900507AAE /* ServiClimasProgramacionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ServiClimasProgramacionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB8EF5CB3041477900507AAE /* ServiClimasProgramacionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ServiClimasProgramacionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		EB8EF5D33041477900507AAE /* Exceptions for "ServiClimasProgramacion" folder in "ServiClimasProgramacion" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = EB8EF5AA3041477600507AAE /* ServiClimasProgramacion */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		EB8EF5AD3041477600507AAE /* ServiClimasProgramacion */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				EB8EF5D33041477900507AAE /* Exceptions for "ServiClimasProgramacion" folder in "ServiClimasProgramacion" target */,
+			);
+			path = ServiClimasProgramacion;
+			sourceTree = "<group>";
+		};
+		EB8EF5C43041477900507AAE /* ServiClimasProgramacionTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ServiClimasProgramacionTests;
+			sourceTree = "<group>";
+		};
+		EB8EF5CE3041477900507AAE /* ServiClimasProgramacionUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ServiClimasProgramacionUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EB8EF5A83041477600507AAE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EBC103C2304808890069302F /* FirebaseAuth in Frameworks */,
+				EBC103C4304808890069302F /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB8EF5BE3041477900507AAE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB8EF5C83041477900507AAE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EB8EF5A23041477600507AAE = {
+			isa = PBXGroup;
+			children = (
+				EB8EF5AD3041477600507AAE /* ServiClimasProgramacion */,
+				EB8EF5C43041477900507AAE /* ServiClimasProgramacionTests */,
+				EB8EF5CE3041477900507AAE /* ServiClimasProgramacionUITests */,
+				EB8EF5AC3041477600507AAE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EB8EF5AC3041477600507AAE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EB8EF5AB3041477600507AAE /* ServiClimasProgramacion.app */,
+				EB8EF5C13041477900507AAE /* ServiClimasProgramacionTests.xctest */,
+				EB8EF5CB3041477900507AAE /* ServiClimasProgramacionUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EB8EF5AA3041477600507AAE /* ServiClimasProgramacion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB8EF5D43041477900507AAE /* Build configuration list for PBXNativeTarget "ServiClimasProgramacion" */;
+			buildPhases = (
+				EB8EF5A73041477600507AAE /* Sources */,
+				EB8EF5A83041477600507AAE /* Frameworks */,
+				EB8EF5A93041477600507AAE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				EB8EF5AD3041477600507AAE /* ServiClimasProgramacion */,
+			);
+			name = ServiClimasProgramacion;
+			packageProductDependencies = (
+				EBC103C1304808890069302F /* FirebaseAuth */,
+				EBC103C3304808890069302F /* FirebaseFirestore */,
+			);
+			productName = ServiClimasProgramacion;
+			productReference = EB8EF5AB3041477600507AAE /* ServiClimasProgramacion.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EB8EF5C03041477900507AAE /* ServiClimasProgramacionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB8EF5D93041477900507AAE /* Build configuration list for PBXNativeTarget "ServiClimasProgramacionTests" */;
+			buildPhases = (
+				EB8EF5BD3041477900507AAE /* Sources */,
+				EB8EF5BE3041477900507AAE /* Frameworks */,
+				EB8EF5BF3041477900507AAE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EB8EF5C33041477900507AAE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EB8EF5C43041477900507AAE /* ServiClimasProgramacionTests */,
+			);
+			name = ServiClimasProgramacionTests;
+			packageProductDependencies = (
+			);
+			productName = ServiClimasProgramacionTests;
+			productReference = EB8EF5C13041477900507AAE /* ServiClimasProgramacionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EB8EF5CA3041477900507AAE /* ServiClimasProgramacionUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB8EF5DC3041477900507AAE /* Build configuration list for PBXNativeTarget "ServiClimasProgramacionUITests" */;
+			buildPhases = (
+				EB8EF5C73041477900507AAE /* Sources */,
+				EB8EF5C83041477900507AAE /* Frameworks */,
+				EB8EF5C93041477900507AAE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EB8EF5CD3041477900507AAE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EB8EF5CE3041477900507AAE /* ServiClimasProgramacionUITests */,
+			);
+			name = ServiClimasProgramacionUITests;
+			packageProductDependencies = (
+			);
+			productName = ServiClimasProgramacionUITests;
+			productReference = EB8EF5CB3041477900507AAE /* ServiClimasProgramacionUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EB8EF5A33041477600507AAE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					EB8EF5AA3041477600507AAE = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					EB8EF5C03041477900507AAE = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = EB8EF5AA3041477600507AAE;
+					};
+					EB8EF5CA3041477900507AAE = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = EB8EF5AA3041477600507AAE;
+					};
+				};
+			};
+			buildConfigurationList = EB8EF5A63041477600507AAE /* Build configuration list for PBXProject "ServiClimasProgramacion" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EB8EF5A23041477600507AAE;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				EBC103C0304808890069302F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EB8EF5AC3041477600507AAE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EB8EF5AA3041477600507AAE /* ServiClimasProgramacion */,
+				EB8EF5C03041477900507AAE /* ServiClimasProgramacionTests */,
+				EB8EF5CA3041477900507AAE /* ServiClimasProgramacionUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EB8EF5A93041477600507AAE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB8EF5BF3041477900507AAE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB8EF5C93041477900507AAE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EB8EF5A73041477600507AAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB8EF5BD3041477900507AAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB8EF5C73041477900507AAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EB8EF5C33041477900507AAE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EB8EF5AA3041477600507AAE /* ServiClimasProgramacion */;
+			targetProxy = EB8EF5C23041477900507AAE /* PBXContainerItemProxy */;
+		};
+		EB8EF5CD3041477900507AAE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EB8EF5AA3041477600507AAE /* ServiClimasProgramacion */;
+			targetProxy = EB8EF5CC3041477900507AAE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		EB8EF5D53041477900507AAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ServiClimasProgramacion/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eduardomorfin.ServiClimasProgramacion;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EB8EF5D63041477900507AAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ServiClimasProgramacion/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eduardomorfin.ServiClimasProgramacion;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EB8EF5D73041477900507AAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		EB8EF5D83041477900507AAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EB8EF5DA3041477900507AAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eduardomorfin.ServiClimasProgramacionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ServiClimasProgramacion.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ServiClimasProgramacion";
+			};
+			name = Debug;
+		};
+		EB8EF5DB3041477900507AAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eduardomorfin.ServiClimasProgramacionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ServiClimasProgramacion.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ServiClimasProgramacion";
+			};
+			name = Release;
+		};
+		EB8EF5DD3041477900507AAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eduardomorfin.ServiClimasProgramacionUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ServiClimasProgramacion;
+			};
+			name = Debug;
+		};
+		EB8EF5DE3041477900507AAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eduardomorfin.ServiClimasProgramacionUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ServiClimasProgramacion;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EB8EF5A63041477600507AAE /* Build configuration list for PBXProject "ServiClimasProgramacion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB8EF5D73041477900507AAE /* Debug */,
+				EB8EF5D83041477900507AAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EB8EF5D43041477900507AAE /* Build configuration list for PBXNativeTarget "ServiClimasProgramacion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB8EF5D53041477900507AAE /* Debug */,
+				EB8EF5D63041477900507AAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EB8EF5D93041477900507AAE /* Build configuration list for PBXNativeTarget "ServiClimasProgramacionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB8EF5DA3041477900507AAE /* Debug */,
+				EB8EF5DB3041477900507AAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EB8EF5DC3041477900507AAE /* Build configuration list for PBXNativeTarget "ServiClimasProgramacionUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB8EF5DD3041477900507AAE /* Debug */,
+				EB8EF5DE3041477900507AAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		EBC103C0304808890069302F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.18.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EBC103C1304808890069302F /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EBC103C0304808890069302F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		EBC103C3304808890069302F /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EBC103C0304808890069302F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = EB8EF5A33041477600507AAE /* Project object */;
+}
