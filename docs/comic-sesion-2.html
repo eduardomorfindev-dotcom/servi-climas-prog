@@ -1,0 +1,294 @@
+<meta charset="utf-8">
+<title>Estructura VIPER</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Patrick+Hand&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg:#eef3f8;
+    --ink:#141a24;
+    --ink-soft:#3c4759;
+    --panel:#ffffff;
+    --panel-edge:#141a24;
+    --accent:#0c447c;
+    --error:#c24a26;
+    --error-bg:#faece7;
+    --ok:#2f6b3a;
+    --ok-bg:#eaf3de;
+    --viper:#534ab7;
+    --viper-bg:#eeedfe;
+    --tape:#f3d34a;
+    --shadow: 6px 6px 0 var(--panel-edge);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0c1118;
+      --ink:#e9edf3;
+      --ink-soft:#aab4c4;
+      --panel:#151c27;
+      --panel-edge:#e9edf3;
+      --accent:#7fb2ea;
+      --error:#f0a082;
+      --error-bg:#2a1712;
+      --ok:#a9d18a;
+      --ok-bg:#132014;
+      --viper:#c2bdf0;
+      --viper-bg:#231f3d;
+      --tape:#d9b93a;
+      --shadow: 6px 6px 0 var(--panel-edge);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0c1118;
+    --ink:#e9edf3;
+    --ink-soft:#aab4c4;
+    --panel:#151c27;
+    --panel-edge:#e9edf3;
+    --accent:#7fb2ea;
+    --error:#f0a082;
+    --error-bg:#2a1712;
+    --ok:#a9d18a;
+    --ok-bg:#132014;
+    --viper:#c2bdf0;
+    --viper-bg:#231f3d;
+    --tape:#d9b93a;
+    --shadow: 6px 6px 0 var(--panel-edge);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Patrick Hand', 'Comic Sans MS', cursive;
+    padding:2.5rem 1.5rem 4rem;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2.2rem;
+  }
+
+  header{ text-align:center; max-width:640px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 .5rem;
+  }
+  h1{
+    font-family:'Bangers', 'Patrick Hand', cursive;
+    font-weight:400;
+    font-size:clamp(2.4rem, 6vw, 3.6rem);
+    letter-spacing:.03em;
+    margin:0;
+    color:var(--viper);
+    text-wrap:balance;
+    -webkit-text-stroke:1.5px var(--ink);
+  }
+  header p{ font-size:1.15rem; color:var(--ink-soft); margin:.6rem 0 0; }
+
+  .strip{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:1.6rem;
+    max-width:1080px;
+    width:100%;
+  }
+  @media (max-width: 760px){ .strip{grid-template-columns:1fr;} }
+
+  .panel{
+    position:relative;
+    background:var(--panel);
+    border:3px solid var(--panel-edge);
+    box-shadow:var(--shadow);
+    padding:1.1rem 1.1rem 1.3rem;
+    min-height:260px;
+    display:flex;
+    flex-direction:column;
+    gap:.6rem;
+  }
+
+  .cap{
+    font-family:'Bangers', cursive;
+    font-size:1.55rem;
+    letter-spacing:.02em;
+    line-height:1.15;
+    color:var(--ink);
+    text-wrap:balance;
+  }
+  .cap span{ color:var(--accent); }
+  .cap span.viper{ color:var(--viper); }
+
+  .tag{
+    align-self:flex-start;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:.15rem .5rem;
+    border:2px solid var(--panel-edge);
+    background:var(--tape);
+    color:var(--ink);
+    transform:rotate(-2deg);
+  }
+
+  .body-text{ font-size:1.15rem; line-height:1.35; color:var(--ink-soft); flex-grow:1; }
+
+  .log{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    line-height:1.55;
+    background:var(--error-bg);
+    color:var(--error);
+    border:2px solid var(--panel-edge);
+    padding:.55rem .65rem;
+    white-space:pre-wrap;
+  }
+  .log.ok{ background:var(--ok-bg); color:var(--ok); }
+  .log.viper{ background:var(--viper-bg); color:var(--viper); }
+
+  .bubble{
+    position:relative;
+    align-self:flex-start;
+    background:var(--panel);
+    border:2.5px solid var(--panel-edge);
+    border-radius:16px;
+    padding:.5rem .8rem;
+    font-size:1.1rem;
+    max-width:92%;
+  }
+  .bubble::after{
+    content:""; position:absolute; left:18px; bottom:-11px;
+    width:0; height:0; border:9px solid transparent;
+    border-top-color:var(--panel-edge); border-bottom:0;
+  }
+  .bubble::before{
+    content:""; position:absolute; left:20px; bottom:-7px;
+    width:0; height:0; border:7px solid transparent;
+    border-top-color:var(--panel); border-bottom:0; z-index:1;
+  }
+
+  .stat-row{
+    display:flex; gap:.6rem; align-items:baseline;
+    font-family:'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat{ font-size:1.5rem; font-weight:700; }
+  .stat.bad{ color:var(--error); }
+  .stat.good{ color:var(--ok); }
+  .arrow{ color:var(--ink-soft); font-size:1.1rem; }
+
+  .icon-row{ display:flex; gap:.5rem; flex-wrap:wrap; }
+  .pill{
+    display:flex; align-items:center; gap:.35rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    border:2px solid var(--panel-edge);
+    padding:.2rem .5rem;
+    background:var(--bg);
+  }
+  .pill.ok{ background:var(--ok-bg); color:var(--ok); border-color:var(--ok); }
+  .pill.viper{ background:var(--viper-bg); color:var(--viper); border-color:var(--viper); }
+
+  .sfx{
+    font-family:'Bangers', cursive;
+    font-size:2.1rem;
+    color:var(--error);
+    -webkit-text-stroke:1px var(--ink);
+    align-self:flex-end;
+    transform:rotate(-4deg);
+  }
+  .sfx.win{ color:var(--ok); transform:rotate(3deg); }
+  .sfx.viper{ color:var(--viper); transform:rotate(-3deg); }
+
+  .viper-diagram{
+    display:flex; flex-direction:column; gap:.4rem;
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+  }
+  .viper-row{
+    display:flex; align-items:center; gap:.5rem;
+    border:2px solid var(--panel-edge);
+    background:var(--viper-bg);
+    color:var(--viper);
+    padding:.4rem .6rem;
+  }
+  .viper-row b{ min-width:78px; display:inline-block; }
+
+  footer{
+    max-width:640px; text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; color:var(--ink-soft); line-height:1.7;
+  }
+</style>
+
+<header>
+  <p class="eyebrow">Bitácora de sesión #2 · ServiClimasProgramacion</p>
+  <h1>Estructura VIPER</h1>
+  <p>Auditoría, reglas de negocio, y un refactor de punta a punta.</p>
+</header>
+
+<div class="strip">
+
+  <div class="panel">
+    <span class="tag">Cap. 1</span>
+    <div class="cap">Modo <span>tester</span> activado</div>
+    <div class="body-text">Auditoría completa del proyecto: seguridad, validaciones, spinners, notificaciones.</div>
+    <div class="stat-row">
+      <span class="stat bad">8</span>
+      <span class="arrow">hallazgos</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="tag">Cap. 2</span>
+    <div class="cap">Firestore exige <span>verificación</span></div>
+    <div class="body-text">Las reglas ahora piden <code>email_verified == true</code> — se acabó suplantar al admin cambiando el correo sin confirmarlo.</div>
+    <div class="log ok">18 tests ........ pass
+0 tests ......... fail</div>
+  </div>
+
+  <div class="panel">
+    <span class="tag">Cap. 3</span>
+    <div class="cap">Spinners <span>honestos</span></div>
+    <div class="bubble">"¿Un spinner en un botón que no espera nada? Eso es mentir."</div>
+    <div class="icon-row">
+      <span class="pill ok">Registro: spinner real</span>
+      <span class="pill ok">Confirmar: spinner real</span>
+    </div>
+    <div class="body-text">Los 4 formularios de servicio no llaman a la red ahí — se blindaron contra doble-toque en su lugar.</div>
+  </div>
+
+  <div class="panel">
+    <span class="tag">Cap. 4</span>
+    <div class="cap">Notificaciones que <span>navegan</span></div>
+    <div class="body-text">Tocar un aviso ya lleva al cliente a "Mis solicitudes" o al dueño al panel de admin — no se quedan sin hacer nada.</div>
+    <div class="sfx">¡TOC!</div>
+  </div>
+
+  <div class="panel">
+    <span class="tag">Cap. 5</span>
+    <div class="cap">110V <span>contra</span> 220V</div>
+    <div class="bubble">"Marqué 3 toneladas... ¿por qué me quitó el 110V?"</div>
+    <div class="body-text">Regla real de refrigeración: arriba de 1 tonelada, solo existe 220V. La app ahora lo sabe y lo corrige sola.</div>
+  </div>
+
+  <div class="panel" style="grid-column: span 3;">
+    <span class="tag viper" style="background:var(--viper); color:#fff;">Cap. 6 · Final</span>
+    <div class="cap">La pantalla se parte en <span class="viper">5</span></div>
+    <div class="body-text">"Comprar aire acondicionado" dejó de ser un solo archivo gigante. Ahora cada capa vive por su cuenta:</div>
+    <div class="viper-diagram">
+      <div class="viper-row"><b>View</b> solo UIKit — botones, layout, nada de reglas</div>
+      <div class="viper-row"><b>Presenter</b> guarda la selección y decide qué mostrar</div>
+      <div class="viper-row"><b>Interactor</b> el catálogo y la regla de 110V/220V</div>
+      <div class="viper-row"><b>Router</b> arma el módulo y navega</div>
+      <div class="viper-row"><b>Entity</b> <code>SolicitudCompraAire</code> — los datos, sin nada más</div>
+    </div>
+    <div class="sfx viper">¡SEPARACIÓN DE PODERES!</div>
+  </div>
+
+</div>
+
+<footer>
+  firestore.rules · CompraAireViewController/Presenter/Interactor/Router.swift · AppDelegate.swift<br>
+  ServiClimasProgramacion — sesión de hoy
+</footer>
