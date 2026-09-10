@@ -23,6 +23,9 @@ class ConfirmarSolicitudViewController: UIViewController {
     let confirmarButton = UIButton(type: .system)
     let regresarButton = UIButton(type: .system)
 
+    private let indicadorCarga = UIActivityIndicatorView(style: .medium)
+    private var estaProcesandoConfirmacion = false
+
     // MARK: - CONSTRUCTOR
 
     init(solicitud: SolicitudServicio, alConfirmar: @escaping () -> Void) {
@@ -95,6 +98,15 @@ class ConfirmarSolicitudViewController: UIViewController {
         confirmarButton.layer.shadowOffset = CGSize(width: 0, height: 4)
         confirmarButton.layer.shadowRadius = 8
         confirmarButton.addTarget(self, action: #selector(confirmarSolicitud), for: .touchUpInside)
+
+        indicadorCarga.color = .white
+        indicadorCarga.hidesWhenStopped = true
+        indicadorCarga.translatesAutoresizingMaskIntoConstraints = false
+        confirmarButton.addSubview(indicadorCarga)
+        NSLayoutConstraint.activate([
+            indicadorCarga.centerXAnchor.constraint(equalTo: confirmarButton.centerXAnchor),
+            indicadorCarga.centerYAnchor.constraint(equalTo: confirmarButton.centerYAnchor)
+        ])
 
         regresarButton.setTitle("Regresar", for: .normal)
         regresarButton.setTitleColor(.systemBlue, for: .normal)
@@ -185,7 +197,8 @@ class ConfirmarSolicitudViewController: UIViewController {
     // MARK: - ACCIONES
 
     @objc private func confirmarSolicitud() {
-        confirmarButton.isEnabled = false
+        guard !estaProcesandoConfirmacion else { return }
+        mostrarCargaEnBoton(true)
 
         BaseDatosManager.guardarSolicitud(
             servicio: solicitud.tituloServicio,
@@ -193,7 +206,7 @@ class ConfirmarSolicitudViewController: UIViewController {
             fechaCita: solicitud.fechaCita
         ) { [weak self] resultado in
             guard let self else { return }
-            self.confirmarButton.isEnabled = true
+            self.mostrarCargaEnBoton(false)
 
             switch resultado {
             case .success:
@@ -205,6 +218,25 @@ class ConfirmarSolicitudViewController: UIViewController {
                     mensaje: BaseDatosManager.mensajeError(error)
                 )
             }
+        }
+    }
+
+    /// Muestra un indicador de actividad en el botón mientras se guarda la
+    /// solicitud en Firestore, y evita que se pueda enviar dos veces.
+    private func mostrarCargaEnBoton(_ cargando: Bool) {
+        estaProcesandoConfirmacion = cargando
+        regresarButton.isEnabled = !cargando
+
+        if cargando {
+            confirmarButton.isEnabled = false
+            confirmarButton.configuration?.title = ""
+            confirmarButton.configuration?.image = nil
+            indicadorCarga.startAnimating()
+        } else {
+            indicadorCarga.stopAnimating()
+            confirmarButton.isEnabled = true
+            confirmarButton.configuration?.title = "Confirmar solicitud"
+            confirmarButton.configuration?.image = UIImage(systemName: "checkmark.circle.fill")
         }
     }
 

@@ -22,12 +22,16 @@ class RegistroViewController: UIViewController, UITextFieldDelegate {
     let crearCuentaButton = UIButton(type: .system)
     let regresarButton = UIButton(type: .system)
 
+    private let indicadorCarga = UIActivityIndicatorView(style: .medium)
+    private var estaProcesandoRegistro = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarPantalla()
         configurarElementos()
         configurarLayout()
         configurarTeclado()
+        validarFormulario()
     }
 
     private func configurarPantalla() {
@@ -75,12 +79,28 @@ class RegistroViewController: UIViewController, UITextFieldDelegate {
         contraseñaTextField.agregarBotonOjito()
         confirmarContraseñaTextField.agregarBotonOjito()
 
+        // Validación en tiempo real: cada campo se revisa mientras el
+        // cliente escribe, en vez de solo hasta que presiona "Crear cuenta".
+        [nombreTextField, telefonoTextField, correoTextField, direccionTextField,
+         contraseñaTextField, confirmarContraseñaTextField].forEach {
+            $0.addTarget(self, action: #selector(camposEditadosAccion), for: .editingChanged)
+        }
+
         crearCuentaButton.setTitle("Crear cuenta", for: .normal)
         crearCuentaButton.setTitleColor(.white, for: .normal)
         crearCuentaButton.backgroundColor = .systemBlue
         crearCuentaButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         crearCuentaButton.layer.cornerRadius = 15
         crearCuentaButton.addTarget(self, action: #selector(crearCuentaAccion), for: .touchUpInside)
+
+        indicadorCarga.color = .white
+        indicadorCarga.hidesWhenStopped = true
+        indicadorCarga.translatesAutoresizingMaskIntoConstraints = false
+        crearCuentaButton.addSubview(indicadorCarga)
+        NSLayoutConstraint.activate([
+            indicadorCarga.centerXAnchor.constraint(equalTo: crearCuentaButton.centerXAnchor),
+            indicadorCarga.centerYAnchor.constraint(equalTo: crearCuentaButton.centerYAnchor)
+        ])
 
         regresarButton.setTitle("Ya tengo una cuenta", for: .normal)
         regresarButton.setTitleColor(.systemBlue, for: .normal)
@@ -227,7 +247,70 @@ class RegistroViewController: UIViewController, UITextFieldDelegate {
         view.endEditing(true)
     }
 
+    // MARK: - Validación en tiempo real
+
+    @objc private func camposEditadosAccion() {
+        validarFormulario()
+    }
+
+    /// Marca en rojo cada campo que ya tiene texto pero no es válido, y solo
+    /// deja presionar "Crear cuenta" cuando los 6 campos están completos y
+    /// correctos.
+    private func validarFormulario() {
+        let nombre = nombreTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let telefono = telefonoTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let correo = correoTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let direccion = direccionTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let contraseña = contraseñaTextField.text ?? ""
+        let confirmarContraseña = confirmarContraseñaTextField.text ?? ""
+
+        let telefonoValido = telefono.filter(\.isNumber).count == 10
+        let correoValido = esCorreoValido(correo)
+        let contraseñaValida = contraseña.count >= 6
+        let confirmacionValida = confirmarContraseña == contraseña
+
+        marcarCampo(telefonoTextField, comoValido: telefono.isEmpty || telefonoValido)
+        marcarCampo(correoTextField, comoValido: correo.isEmpty || correoValido)
+        marcarCampo(contraseñaTextField, comoValido: contraseña.isEmpty || contraseñaValida)
+        marcarCampo(confirmarContraseñaTextField, comoValido: confirmarContraseña.isEmpty || confirmacionValida)
+
+        let formularioListo = !nombre.isEmpty && telefonoValido && correoValido
+            && !direccion.isEmpty && contraseñaValida && confirmacionValida
+
+        crearCuentaButton.isEnabled = formularioListo
+        crearCuentaButton.alpha = formularioListo ? 1 : 0.5
+    }
+
+    private func marcarCampo(_ campo: UITextField, comoValido valido: Bool) {
+        campo.layer.borderColor = (valido ? UIColor.tertiarySystemFill : UIColor.systemRed).cgColor
+        campo.layer.borderWidth = valido ? 1 : 1.5
+    }
+
+    // MARK: - Estado de carga
+
+    /// Muestra un indicador de actividad en el botón mientras Firebase crea
+    /// la cuenta, y bloquea los campos para evitar un doble envío.
+    private func mostrarCargaEnBoton(_ cargando: Bool) {
+        estaProcesandoRegistro = cargando
+        [nombreTextField, telefonoTextField, correoTextField, direccionTextField,
+         contraseñaTextField, confirmarContraseñaTextField].forEach {
+            $0.isEnabled = !cargando
+        }
+
+        if cargando {
+            crearCuentaButton.isEnabled = false
+            crearCuentaButton.setTitle("", for: .normal)
+            indicadorCarga.startAnimating()
+        } else {
+            indicadorCarga.stopAnimating()
+            crearCuentaButton.setTitle("Crear cuenta", for: .normal)
+            validarFormulario()
+        }
+    }
+
     @objc private func crearCuentaAccion() {
+        guard !estaProcesandoRegistro else { return }
+
         let nombre = nombreTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let telefono = telefonoTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let correo = correoTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -289,11 +372,11 @@ class RegistroViewController: UIViewController, UITextFieldDelegate {
             return
         }
 
-        crearCuentaButton.isEnabled = false
+        mostrarCargaEnBoton(true)
 
         SesionManager.registrar(nombre: nombre, correo: correo, contrasena: contraseña) { [weak self] resultado in
             guard let self else { return }
-            self.crearCuentaButton.isEnabled = true
+            self.mostrarCargaEnBoton(false)
 
             switch resultado {
             case .success:

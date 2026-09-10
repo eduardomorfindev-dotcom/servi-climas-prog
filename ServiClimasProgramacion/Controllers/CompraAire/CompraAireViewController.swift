@@ -1,6 +1,12 @@
 import UIKit
 
-class CompraAireViewController: UIViewController {
+/// Pantalla "Comprar aire acondicionado". Solo construye la interfaz y
+/// reenvía los toques del usuario al Presenter — ninguna decisión de
+/// negocio (validaciones, reglas de voltaje, armado de la solicitud) vive
+/// aquí.
+final class CompraAireViewController: UIViewController {
+
+    private let presenter: CompraAirePresenterProtocol
 
     let scrollView = UIScrollView()
     let contenidoView = UIView()
@@ -10,13 +16,10 @@ class CompraAireViewController: UIViewController {
     let descripcionLabel = UILabel()
 
     let capacidadLabel = UILabel()
-    let capacidad1Button = UIButton(type: .system)
-    let capacidad15Button = UIButton(type: .system)
-    let capacidad2Button = UIButton(type: .system)
+    let capacidadButton = UIButton(type: .system)
 
     let tipoLabel = UILabel()
-    let normalButton = UIButton(type: .system)
-    let inverterButton = UIButton(type: .system)
+    let tipoButton = UIButton(type: .system)
 
     let voltajeLabel = UILabel()
     let voltaje110Button = UIButton(type: .system)
@@ -32,17 +35,26 @@ class CompraAireViewController: UIViewController {
 
     let solicitarButton = UIButton(type: .system)
 
-    var capacidadSeleccionada: String?
-    var tipoSeleccionado: String?
-    var voltajeSeleccionado: String?
-    var metodoPagoSeleccionado: MetodoPago?
-    var facturaSeleccionada: Bool?
+    init(presenter: CompraAirePresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) no está implementado")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarPantalla()
         configurarElementos()
         configurarLayout()
+        presenter.vistaSeCargo()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        presenter.vistaVaAAparecer()
     }
 
     private func configurarPantalla() {
@@ -73,44 +85,36 @@ class CompraAireViewController: UIViewController {
 
         capacidadLabel.text = "¿Qué capacidad necesitas?"
         configurarLabel(capacidadLabel)
-        configurarBoton(capacidad1Button, titulo: "1 tonelada", icono: "snowflake")
-        configurarBoton(capacidad15Button, titulo: "1 tonelada y media", icono: "snowflake")
-        configurarBoton(capacidad2Button, titulo: "2 toneladas", icono: "snowflake")
-        [capacidad1Button, capacidad15Button, capacidad2Button].forEach {
-            $0.addTarget(self, action: #selector(seleccionarCapacidad), for: .touchUpInside)
-        }
+        configurarBoton(capacidadButton, titulo: "Selecciona la capacidad", icono: "gauge")
+        capacidadButton.menu = construirMenuCapacidad()
+        capacidadButton.showsMenuAsPrimaryAction = true
 
         tipoLabel.text = "¿Qué tipo de equipo?"
         configurarLabel(tipoLabel)
-        configurarBoton(normalButton, titulo: "Normal", icono: "wind")
-        configurarBoton(inverterButton, titulo: "Inverter", icono: "bolt.fill")
-        [normalButton, inverterButton].forEach {
-            $0.addTarget(self, action: #selector(seleccionarTipo), for: .touchUpInside)
-        }
+        configurarBoton(tipoButton, titulo: "Selecciona el tipo de equipo", icono: "wind")
+        tipoButton.menu = construirMenuTipo()
+        tipoButton.showsMenuAsPrimaryAction = true
 
         voltajeLabel.text = "¿Qué voltaje maneja tu instalación?"
         configurarLabel(voltajeLabel)
         configurarBoton(voltaje110Button, titulo: "110V", icono: "powerplug.fill")
         configurarBoton(voltaje220Button, titulo: "220V", icono: "powerplug.fill")
-        [voltaje110Button, voltaje220Button].forEach {
-            $0.addTarget(self, action: #selector(seleccionarVoltaje), for: .touchUpInside)
-        }
+        voltaje110Button.addTarget(self, action: #selector(seleccionarVoltaje110), for: .touchUpInside)
+        voltaje220Button.addTarget(self, action: #selector(seleccionarVoltaje220), for: .touchUpInside)
 
         pagoLabel.text = "¿Cómo prefieres pagar?"
         configurarLabel(pagoLabel)
         configurarBoton(efectivoButton, titulo: "Efectivo", icono: "banknote.fill")
         configurarBoton(transferenciaButton, titulo: "Transferencia", icono: "creditcard.fill")
-        [efectivoButton, transferenciaButton].forEach {
-            $0.addTarget(self, action: #selector(seleccionarMetodoPago), for: .touchUpInside)
-        }
+        efectivoButton.addTarget(self, action: #selector(seleccionarEfectivo), for: .touchUpInside)
+        transferenciaButton.addTarget(self, action: #selector(seleccionarTransferencia), for: .touchUpInside)
 
         facturaLabel.text = "¿Necesitas factura?"
         configurarLabel(facturaLabel)
         configurarBoton(facturaSiButton, titulo: "Sí", icono: "doc.text.fill")
         configurarBoton(facturaNoButton, titulo: "No", icono: "xmark.circle")
-        [facturaSiButton, facturaNoButton].forEach {
-            $0.addTarget(self, action: #selector(seleccionarFactura), for: .touchUpInside)
-        }
+        facturaSiButton.addTarget(self, action: #selector(seleccionarFacturaSi), for: .touchUpInside)
+        facturaNoButton.addTarget(self, action: #selector(seleccionarFacturaNo), for: .touchUpInside)
 
         var configuracionSolicitar = UIButton.Configuration.filled()
         configuracionSolicitar.title = "Solicitar cotización"
@@ -126,8 +130,8 @@ class CompraAireViewController: UIViewController {
 
         [
             regresarButton, tituloLabel, descripcionLabel,
-            capacidadLabel, capacidad1Button, capacidad15Button, capacidad2Button,
-            tipoLabel, normalButton, inverterButton,
+            capacidadLabel, capacidadButton,
+            tipoLabel, tipoButton,
             voltajeLabel, voltaje110Button, voltaje220Button,
             pagoLabel, efectivoButton, transferenciaButton,
             facturaLabel, facturaSiButton, facturaNoButton,
@@ -162,23 +166,35 @@ class CompraAireViewController: UIViewController {
     }
 
     private func marcarSeleccion(_ seleccionado: UIButton, entre botones: [UIButton]) {
-        botones.forEach {
-            $0.layer.borderWidth = 1
-            $0.layer.borderColor = UIColor.separator.cgColor
-            $0.configuration?.baseBackgroundColor = .secondarySystemGroupedBackground
-            $0.configuration?.baseForegroundColor = .label
-        }
+        botones.forEach { desmarcarBoton($0) }
         seleccionado.layer.borderWidth = 2
         seleccionado.layer.borderColor = UIColor.systemIndigo.cgColor
         seleccionado.configuration?.baseBackgroundColor = .systemIndigo
         seleccionado.configuration?.baseForegroundColor = .white
     }
 
+    private func desmarcarBoton(_ boton: UIButton) {
+        boton.layer.borderWidth = 1
+        boton.layer.borderColor = UIColor.separator.cgColor
+        boton.configuration?.baseBackgroundColor = .secondarySystemGroupedBackground
+        boton.configuration?.baseForegroundColor = .label
+    }
+
+    /// Pinta de morado el botón desplegable elegido y le pone el texto de la
+    /// opción seleccionada, igual que como se marca cualquier otro botón.
+    private func marcarBotonSeleccionado(_ boton: UIButton, titulo: String) {
+        boton.configuration?.title = titulo
+        boton.layer.borderWidth = 2
+        boton.layer.borderColor = UIColor.systemIndigo.cgColor
+        boton.configuration?.baseBackgroundColor = .systemIndigo
+        boton.configuration?.baseForegroundColor = .white
+    }
+
     private func configurarLayout() {
         let elementos = [
             scrollView, contenidoView, regresarButton, tituloLabel, descripcionLabel,
-            capacidadLabel, capacidad1Button, capacidad15Button, capacidad2Button,
-            tipoLabel, normalButton, inverterButton,
+            capacidadLabel, capacidadButton,
+            tipoLabel, tipoButton,
             voltajeLabel, voltaje110Button, voltaje220Button,
             pagoLabel, efectivoButton, transferenciaButton,
             facturaLabel, facturaSiButton, facturaNoButton,
@@ -213,36 +229,21 @@ class CompraAireViewController: UIViewController {
             capacidadLabel.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
             capacidadLabel.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
 
-            capacidad1Button.topAnchor.constraint(equalTo: capacidadLabel.bottomAnchor, constant: 14),
-            capacidad1Button.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
-            capacidad1Button.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
-            capacidad1Button.heightAnchor.constraint(equalToConstant: 58),
+            capacidadButton.topAnchor.constraint(equalTo: capacidadLabel.bottomAnchor, constant: 14),
+            capacidadButton.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
+            capacidadButton.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
+            capacidadButton.heightAnchor.constraint(equalToConstant: 58),
 
-            capacidad15Button.topAnchor.constraint(equalTo: capacidad1Button.bottomAnchor, constant: 10),
-            capacidad15Button.leadingAnchor.constraint(equalTo: capacidad1Button.leadingAnchor),
-            capacidad15Button.trailingAnchor.constraint(equalTo: capacidad1Button.trailingAnchor),
-            capacidad15Button.heightAnchor.constraint(equalToConstant: 58),
-
-            capacidad2Button.topAnchor.constraint(equalTo: capacidad15Button.bottomAnchor, constant: 10),
-            capacidad2Button.leadingAnchor.constraint(equalTo: capacidad1Button.leadingAnchor),
-            capacidad2Button.trailingAnchor.constraint(equalTo: capacidad1Button.trailingAnchor),
-            capacidad2Button.heightAnchor.constraint(equalToConstant: 58),
-
-            tipoLabel.topAnchor.constraint(equalTo: capacidad2Button.bottomAnchor, constant: 26),
+            tipoLabel.topAnchor.constraint(equalTo: capacidadButton.bottomAnchor, constant: 26),
             tipoLabel.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
             tipoLabel.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
 
-            normalButton.topAnchor.constraint(equalTo: tipoLabel.bottomAnchor, constant: 14),
-            normalButton.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
-            normalButton.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
-            normalButton.heightAnchor.constraint(equalToConstant: 58),
+            tipoButton.topAnchor.constraint(equalTo: tipoLabel.bottomAnchor, constant: 14),
+            tipoButton.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
+            tipoButton.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
+            tipoButton.heightAnchor.constraint(equalToConstant: 58),
 
-            inverterButton.topAnchor.constraint(equalTo: normalButton.bottomAnchor, constant: 10),
-            inverterButton.leadingAnchor.constraint(equalTo: normalButton.leadingAnchor),
-            inverterButton.trailingAnchor.constraint(equalTo: normalButton.trailingAnchor),
-            inverterButton.heightAnchor.constraint(equalToConstant: 58),
-
-            voltajeLabel.topAnchor.constraint(equalTo: inverterButton.bottomAnchor, constant: 26),
+            voltajeLabel.topAnchor.constraint(equalTo: tipoButton.bottomAnchor, constant: 26),
             voltajeLabel.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
             voltajeLabel.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
 
@@ -292,84 +293,90 @@ class CompraAireViewController: UIViewController {
         ])
     }
 
-    @objc private func regresarAccion() {
-        navigationController?.popViewController(animated: true)
-    }
-
-    @objc private func seleccionarCapacidad(_ sender: UIButton) {
-        marcarSeleccion(sender, entre: [capacidad1Button, capacidad15Button, capacidad2Button])
-        if sender == capacidad1Button {
-            capacidadSeleccionada = "1 tonelada"
-        } else if sender == capacidad15Button {
-            capacidadSeleccionada = "1 tonelada y media"
-        } else {
-            capacidadSeleccionada = "2 toneladas"
+    private func construirMenuCapacidad() -> UIMenu {
+        let acciones = presenter.capacidadesSugeridas.map { toneladas -> UIAction in
+            let titulo = toneladas == 1 ? "1 tonelada" : "\(toneladas) toneladas"
+            return UIAction(title: titulo) { [weak self] _ in
+                self?.presenter.seleccionoCapacidad(toneladas: toneladas, titulo: titulo)
+            }
         }
+        return UIMenu(title: "¿Qué capacidad necesitas?", children: acciones)
     }
 
-    @objc private func seleccionarTipo(_ sender: UIButton) {
-        marcarSeleccion(sender, entre: [normalButton, inverterButton])
-        tipoSeleccionado = (sender == normalButton) ? "Normal" : "Inverter"
+    private func construirMenuTipo() -> UIMenu {
+        let acciones = presenter.tiposEquipo.map { tipo -> UIAction in
+            UIAction(title: tipo) { [weak self] _ in
+                self?.presenter.seleccionoTipo(tipo)
+            }
+        }
+        return UIMenu(title: "¿Qué tipo de equipo?", children: acciones)
     }
 
-    @objc private func seleccionarVoltaje(_ sender: UIButton) {
-        marcarSeleccion(sender, entre: [voltaje110Button, voltaje220Button])
-        voltajeSeleccionado = (sender == voltaje110Button) ? "110V" : "220V"
+    @objc private func regresarAccion() {
+        presenter.presionoRegresar()
     }
 
-    @objc private func seleccionarMetodoPago(_ sender: UIButton) {
-        marcarSeleccion(sender, entre: [efectivoButton, transferenciaButton])
-        metodoPagoSeleccionado = (sender == efectivoButton) ? .efectivo : .transferencia
+    @objc private func seleccionarVoltaje110() {
+        presenter.intentoSeleccionarVoltaje("110V")
     }
 
-    @objc private func seleccionarFactura(_ sender: UIButton) {
-        marcarSeleccion(sender, entre: [facturaSiButton, facturaNoButton])
-        facturaSeleccionada = (sender == facturaSiButton)
+    @objc private func seleccionarVoltaje220() {
+        presenter.intentoSeleccionarVoltaje("220V")
+    }
+
+    @objc private func seleccionarEfectivo() {
+        presenter.seleccionoMetodoPago(.efectivo)
+    }
+
+    @objc private func seleccionarTransferencia() {
+        presenter.seleccionoMetodoPago(.transferencia)
+    }
+
+    @objc private func seleccionarFacturaSi() {
+        presenter.seleccionoFactura(true)
+    }
+
+    @objc private func seleccionarFacturaNo() {
+        presenter.seleccionoFactura(false)
     }
 
     @objc private func solicitarAccion() {
-        guard let capacidad = capacidadSeleccionada else {
-            mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona la capacidad del equipo.")
-            return
-        }
-        guard let tipo = tipoSeleccionado else {
-            mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona el tipo de equipo.")
-            return
-        }
-        guard let voltaje = voltajeSeleccionado else {
-            mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona el voltaje.")
-            return
-        }
-        guard let metodoPago = metodoPagoSeleccionado else {
-            mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona tu método de pago.")
-            return
-        }
-        guard let factura = facturaSeleccionada else {
-            mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Indica si necesitas factura.")
-            return
-        }
+        presenter.presionoSolicitar()
+    }
+}
 
-        let solicitud = SolicitudCompraAire(
-            capacidad: capacidad,
-            tipo: tipo,
-            voltaje: voltaje,
-            metodoPago: metodoPago,
-            factura: factura
-        )
+// MARK: - CompraAireViewProtocol
 
-        let pantalla = ConfirmarSolicitudViewController(solicitud: solicitud) {
-            // Solo notifica al dueño: el precio depende del tipo de cambio del
-            // dólar y hay que revisarlo antes de contactar al cliente.
-            NotificacionesManager.notificarInmediata(
-                titulo: "Nueva cotización de equipo",
-                mensaje: "\(SesionManager.nombreUsuarioActual) quiere cotizar un equipo \(solicitud.tipo) de \(solicitud.capacidad), \(solicitud.voltaje). Revisa el tipo de cambio antes de contactarlo."
-            )
-        }
+extension CompraAireViewController: CompraAireViewProtocol {
 
-        navigationController?.pushViewController(pantalla, animated: true)
+    func mostrarCapacidad(_ titulo: String) {
+        marcarBotonSeleccionado(capacidadButton, titulo: titulo)
     }
 
-    private func mostrarAlerta(titulo: String, mensaje: String) {
+    func mostrarTipo(_ titulo: String) {
+        marcarBotonSeleccionado(tipoButton, titulo: titulo)
+    }
+
+    func marcarVoltaje(_ voltaje: String) {
+        let seleccionado = voltaje == "110V" ? voltaje110Button : voltaje220Button
+        marcarSeleccion(seleccionado, entre: [voltaje110Button, voltaje220Button])
+    }
+
+    func desmarcarVoltaje110() {
+        desmarcarBoton(voltaje110Button)
+    }
+
+    func marcarMetodoPago(_ metodoPago: MetodoPago) {
+        let seleccionado = metodoPago == .efectivo ? efectivoButton : transferenciaButton
+        marcarSeleccion(seleccionado, entre: [efectivoButton, transferenciaButton])
+    }
+
+    func marcarFactura(_ factura: Bool) {
+        let seleccionado = factura ? facturaSiButton : facturaNoButton
+        marcarSeleccion(seleccionado, entre: [facturaSiButton, facturaNoButton])
+    }
+
+    func mostrarAlerta(titulo: String, mensaje: String) {
         let alerta = UIAlertController(title: titulo, message: mensaje, preferredStyle: .alert)
         alerta.addAction(UIAlertAction(title: "Aceptar", style: .default))
         present(alerta, animated: true)

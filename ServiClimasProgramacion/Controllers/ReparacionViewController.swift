@@ -36,11 +36,19 @@ class ReparacionViewController: UIViewController {
     var sintomaSeleccionado: String?
     var metodoPagoSeleccionado: MetodoPago?
 
+    /// Evita que un doble toque empuje la pantalla de confirmación dos veces.
+    private var estaProcesandoAgendar = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarPantalla()
         configurarElementos()
         configurarLayout()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        estaProcesandoAgendar = false
     }
 
     private func configurarPantalla() {
@@ -326,6 +334,8 @@ class ReparacionViewController: UIViewController {
     }
 
     @objc private func agendarAccion() {
+        guard !estaProcesandoAgendar else { return }
+
         guard let tipoAire = tipoAireSeleccionado else {
             mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona el tipo de aire acondicionado.")
             return
@@ -339,10 +349,15 @@ class ReparacionViewController: UIViewController {
             return
         }
 
-        var comentario = comentarioTextView.text ?? ""
-        if comentario == comentarioPlaceholder {
-            comentario = "Sin comentarios adicionales."
-        }
+        // Se revisa el color, no el texto exacto: así, si el cliente escribe
+        // justo el mismo texto del placeholder como comentario real, no se
+        // pierde (el color ya habrá cambiado a .label al empezar a editar).
+        // También se sanean espacios en blanco: un comentario con solo
+        // espacios o saltos de línea cuenta como vacío.
+        let textoComentario = (comentarioTextView.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let comentario = (comentarioTextView.textColor == .placeholderText || textoComentario.isEmpty)
+            ? "Sin comentarios adicionales."
+            : textoComentario
 
         let solicitud = SolicitudReparacion(
             tipoAire: tipoAire,
@@ -356,15 +371,18 @@ class ReparacionViewController: UIViewController {
             NotificacionesManager.notificarUnDiaAntes(
                 fechaCita: solicitud.fechaHoraCita,
                 titulo: "Recordatorio de reparación",
-                mensaje: "Mañana llega el técnico a revisar tu equipo (\(solicitud.sintoma.lowercased()))."
+                mensaje: "Mañana llega el técnico a revisar tu equipo (\(solicitud.sintoma.lowercased())).",
+                pantalla: .misSolicitudes
             )
             NotificacionesManager.notificarUnDiaAntes(
                 fechaCita: solicitud.fechaHoraCita,
                 titulo: "Reparación agendada",
-                mensaje: "\(SesionManager.nombreUsuarioActual) tiene una reparación mañana: \(solicitud.sintoma.lowercased())."
+                mensaje: "\(SesionManager.nombreUsuarioActual) tiene una reparación mañana: \(solicitud.sintoma.lowercased()).",
+                pantalla: .admin
             )
         }
 
+        estaProcesandoAgendar = true
         navigationController?.pushViewController(pantalla, animated: true)
     }
 

@@ -24,12 +24,17 @@ class RecuperarContrasenaViewController: UIViewController, UITextFieldDelegate {
     private var segundosParaReenviar = 0
     private var temporizadorReenvio: Timer?
 
+    private let indicadorCarga = UIActivityIndicatorView(style: .medium)
+    private var estaProcesandoEnvio = false
+    private var correoEsValido = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarPantalla()
         configurarElementos()
         configurarLayout()
         configurarTeclado()
+        validarFormulario()
     }
 
     deinit {
@@ -67,6 +72,7 @@ class RecuperarContrasenaViewController: UIViewController, UITextFieldDelegate {
         configurarCampo(campo: correoTextField, placeholder: "Correo electrónico", tipo: .emailAddress)
         correoTextField.delegate = self
         correoTextField.text = correoInicial
+        correoTextField.addTarget(self, action: #selector(campoEditadoAccion), for: .editingChanged)
 
         enviarButton.setTitle("Enviar enlace de recuperación", for: .normal)
         enviarButton.setTitleColor(.white, for: .normal)
@@ -75,6 +81,15 @@ class RecuperarContrasenaViewController: UIViewController, UITextFieldDelegate {
         enviarButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         enviarButton.layer.cornerRadius = 15
         enviarButton.addTarget(self, action: #selector(enviarAccion), for: .touchUpInside)
+
+        indicadorCarga.color = .white
+        indicadorCarga.hidesWhenStopped = true
+        indicadorCarga.translatesAutoresizingMaskIntoConstraints = false
+        enviarButton.addSubview(indicadorCarga)
+        NSLayoutConstraint.activate([
+            indicadorCarga.centerXAnchor.constraint(equalTo: enviarButton.centerXAnchor),
+            indicadorCarga.centerYAnchor.constraint(equalTo: enviarButton.centerYAnchor)
+        ])
 
         regresarButton.setTitle("Regresar a iniciar sesión", for: .normal)
         regresarButton.setTitleColor(.systemBlue, for: .normal)
@@ -174,8 +189,47 @@ class RecuperarContrasenaViewController: UIViewController, UITextFieldDelegate {
         view.endEditing(true)
     }
 
+    // MARK: - Validación en tiempo real
+
+    @objc private func campoEditadoAccion() {
+        validarFormulario()
+    }
+
+    /// Marca en rojo el campo si el correo tiene formato inválido, y solo
+    /// deja presionar "Enviar" cuando es válido (y no hay cuenta regresiva).
+    private func validarFormulario() {
+        let correo = correoTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let valido = esCorreoValido(correo)
+        marcarCampo(correoTextField, comoValido: correo.isEmpty || valido)
+        correoEsValido = valido
+        actualizarEstadoBoton()
+    }
+
+    private func marcarCampo(_ campo: UITextField, comoValido valido: Bool) {
+        campo.layer.borderColor = (valido ? UIColor.tertiarySystemFill : UIColor.systemRed).cgColor
+        campo.layer.borderWidth = valido ? 1 : 1.5
+    }
+
+    // MARK: - Estado de carga
+
+    /// Muestra un indicador de actividad en el botón mientras Firebase manda
+    /// el correo, y bloquea el campo para evitar un doble envío.
+    private func mostrarCargaEnBoton(_ cargando: Bool) {
+        estaProcesandoEnvio = cargando
+        correoTextField.isEnabled = !cargando
+
+        if cargando {
+            enviarButton.isEnabled = false
+            enviarButton.setTitle("", for: .normal)
+            indicadorCarga.startAnimating()
+        } else {
+            indicadorCarga.stopAnimating()
+            actualizarEstadoBoton()
+        }
+    }
+
     @objc private func enviarAccion() {
-        guard segundosParaReenviar == 0 else { return }
+        guard segundosParaReenviar == 0, !estaProcesandoEnvio else { return }
 
         let correo = correoTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
@@ -191,11 +245,11 @@ class RecuperarContrasenaViewController: UIViewController, UITextFieldDelegate {
             return
         }
 
-        enviarButton.isEnabled = false
+        mostrarCargaEnBoton(true)
 
         SesionManager.enviarRecuperacionContrasena(correo: correo) { [weak self] resultado in
             guard let self else { return }
-            self.enviarButton.isEnabled = true
+            self.mostrarCargaEnBoton(false)
 
             switch resultado {
             case .success:
@@ -223,7 +277,7 @@ class RecuperarContrasenaViewController: UIViewController, UITextFieldDelegate {
     private func iniciarCuentaRegresivaReenvio() {
         temporizadorReenvio?.invalidate()
         segundosParaReenviar = 30
-        actualizarTituloEnviar()
+        actualizarEstadoBoton()
 
         temporizadorReenvio = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] temporizador in
             guard let self else { return }
@@ -232,18 +286,21 @@ class RecuperarContrasenaViewController: UIViewController, UITextFieldDelegate {
                 self.segundosParaReenviar = 0
                 temporizador.invalidate()
             }
-            self.actualizarTituloEnviar()
+            self.actualizarEstadoBoton()
         }
     }
 
-    private func actualizarTituloEnviar() {
+    private func actualizarEstadoBoton() {
+        guard !estaProcesandoEnvio else { return }
+
         if segundosParaReenviar > 0 {
             enviarButton.setTitle("Reenviar en \(segundosParaReenviar)s", for: .normal)
             enviarButton.isEnabled = false
         } else {
             enviarButton.setTitle("Enviar enlace de recuperación", for: .normal)
-            enviarButton.isEnabled = true
+            enviarButton.isEnabled = correoEsValido
         }
+        enviarButton.alpha = enviarButton.isEnabled ? 1 : 0.5
     }
 
     private func mostrarAlerta(titulo: String, mensaje: String) {

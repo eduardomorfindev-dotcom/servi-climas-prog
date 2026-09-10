@@ -1,5 +1,9 @@
 import Foundation
 
+/// Entity del módulo VIPER "Comprar aire acondicionado" (ver
+/// Controllers/CompraAire/): los datos puros de la cotización, sin ninguna
+/// dependencia de UIKit ni de las demás capas (View, Presenter, Interactor,
+/// Router).
 struct SolicitudCompraAire: SolicitudServicio {
     let capacidad: String
     let tipo: String

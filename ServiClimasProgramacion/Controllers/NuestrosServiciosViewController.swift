@@ -312,7 +312,7 @@ class NuestrosServiciosViewController: UIViewController {
     }
 
     @objc private func compraAccion() {
-        navigationController?.pushViewController(CompraAireViewController(), animated: true)
+        navigationController?.pushViewController(CompraAireRouter.crearModulo(), animated: true)
     }
 
     @objc private func misSolicitudesAccion() {

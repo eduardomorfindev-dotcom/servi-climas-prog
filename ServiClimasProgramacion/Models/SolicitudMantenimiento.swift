@@ -2,6 +2,7 @@ import Foundation
 
 struct SolicitudMantenimiento: SolicitudServicio {
     let tipoEquipo: String
+    let capacidad: String
     let tipoMantenimiento: String
     let fecha: Date
     let hora: Date
@@ -32,6 +33,7 @@ struct SolicitudMantenimiento: SolicitudServicio {
         return [
             ("Servicio", tipoMantenimiento),
             ("Tipo de equipo", tipoEquipo),
+            ("Capacidad", capacidad),
             ("Fecha", formatoFecha.string(from: fecha)),
             ("Horario", formatoHora.string(from: hora)),
             ("Método de pago", metodoPago.descripcion),

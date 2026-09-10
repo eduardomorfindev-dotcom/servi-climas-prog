@@ -15,6 +15,9 @@ class MantenimientoViewController: UIViewController {
     let inverterButton = UIButton(type: .system)
     let otroEquipoButton = UIButton(type: .system)
 
+    let capacidadLabel = UILabel()
+    let capacidadButton = UIButton(type: .system)
+
     let mantenimientoLabel = UILabel()
 
     let preventivoButton = UIButton(type: .system)
@@ -32,18 +35,37 @@ class MantenimientoViewController: UIViewController {
 
     let comentarioLabel = UILabel()
     let comentarioTextView = UITextView()
+    private let comentarioPlaceholder = "Escribe aquí algún comentario sobre tu equipo o el servicio que necesitas..."
 
     let continuarButton = UIButton(type: .system)
 
     var equipoSeleccionado = "No seleccionado"
+    var capacidadSeleccionada: String?
     var mantenimientoSeleccionado = "No seleccionado"
     var metodoPagoSeleccionado: MetodoPago?
+
+    /// Evita que un doble toque en "Continuar" empuje la misma pantalla de
+    /// confirmación dos veces; se resetea al volver a aparecer esta pantalla.
+    private var estaProcesandoContinuar = false
+
+    /// Opciones sugeridas de capacidad, en toneladas de refrigeración:
+    /// desde equipos residenciales chicos (media tonelada) hasta equipos
+    /// industriales grandes (100 toneladas).
+    private let capacidadesSugeridas: [Double] = [
+        0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5,
+        7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100
+    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarPantalla()
         configurarElementos()
         configurarLayout()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        estaProcesandoContinuar = false
     }
 
     private func configurarPantalla() {
@@ -84,7 +106,18 @@ class MantenimientoViewController: UIViewController {
 
         convencionalButton.addTarget(self, action: #selector(seleccionarEquipo), for: .touchUpInside)
         inverterButton.addTarget(self, action: #selector(seleccionarEquipo), for: .touchUpInside)
-        otroEquipoButton.addTarget(self, action: #selector(seleccionarEquipo), for: .touchUpInside)
+
+        // "Otro equipo" no selecciona directo: despliega un menú con las
+        // variantes específicas y guarda la que el cliente elija.
+        otroEquipoButton.menu = construirMenuOtroEquipo()
+        otroEquipoButton.showsMenuAsPrimaryAction = true
+
+        capacidadLabel.text = "¿Qué capacidad es tu equipo?"
+        configurarLabel(capacidadLabel)
+
+        configurarBoton(capacidadButton, titulo: "Selecciona la capacidad", icono: "gauge")
+        capacidadButton.menu = construirMenuCapacidad()
+        capacidadButton.showsMenuAsPrimaryAction = true
 
         mantenimientoLabel.text = "¿Qué mantenimiento necesitas?"
         configurarLabel(mantenimientoLabel)
@@ -135,9 +168,10 @@ class MantenimientoViewController: UIViewController {
         comentarioTextView.layer.cornerRadius = 16
         comentarioTextView.layer.borderWidth = 1
         comentarioTextView.layer.borderColor = UIColor.separator.cgColor
-        comentarioTextView.text = "Escribe aquí algún comentario sobre tu equipo o el servicio que necesitas..."
-        comentarioTextView.textColor = .secondaryLabel
+        comentarioTextView.text = comentarioPlaceholder
+        comentarioTextView.textColor = .placeholderText
         comentarioTextView.textContainerInset = UIEdgeInsets(top: 15, left: 12, bottom: 15, right: 12)
+        comentarioTextView.delegate = self
 
         var configuracionContinuar = UIButton.Configuration.filled()
         configuracionContinuar.title = "Continuar"
@@ -164,6 +198,7 @@ class MantenimientoViewController: UIViewController {
         let elementos = [
             regresarButton, tituloLabel, descripcionLabel, tipoEquipoLabel,
             convencionalButton, inverterButton, otroEquipoButton,
+            capacidadLabel, capacidadButton,
             mantenimientoLabel, preventivoButton, correctivoButton,
             pagoLabel, transferenciaButton, efectivoButton,
             fechaLabel, fechaPicker, horarioLabel, horarioPicker,
@@ -205,6 +240,7 @@ class MantenimientoViewController: UIViewController {
         let elementos = [
             scrollView, contenidoView, regresarButton, tituloLabel, descripcionLabel,
             tipoEquipoLabel, convencionalButton, inverterButton, otroEquipoButton,
+            capacidadLabel, capacidadButton,
             mantenimientoLabel, preventivoButton, correctivoButton,
             pagoLabel, transferenciaButton, efectivoButton,
             fechaLabel, fechaPicker, horarioLabel, horarioPicker,
@@ -255,7 +291,16 @@ class MantenimientoViewController: UIViewController {
             otroEquipoButton.trailingAnchor.constraint(equalTo: convencionalButton.trailingAnchor),
             otroEquipoButton.heightAnchor.constraint(equalToConstant: 60),
 
-            mantenimientoLabel.topAnchor.constraint(equalTo: otroEquipoButton.bottomAnchor, constant: 30),
+            capacidadLabel.topAnchor.constraint(equalTo: otroEquipoButton.bottomAnchor, constant: 30),
+            capacidadLabel.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
+            capacidadLabel.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
+
+            capacidadButton.topAnchor.constraint(equalTo: capacidadLabel.bottomAnchor, constant: 14),
+            capacidadButton.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
+            capacidadButton.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
+            capacidadButton.heightAnchor.constraint(equalToConstant: 60),
+
+            mantenimientoLabel.topAnchor.constraint(equalTo: capacidadButton.bottomAnchor, constant: 30),
             mantenimientoLabel.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
             mantenimientoLabel.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
 
@@ -315,6 +360,37 @@ class MantenimientoViewController: UIViewController {
     }
 
     @objc private func seleccionarEquipo(_ sender: UIButton) {
+        marcarBotonEquipoSeleccionado(sender)
+
+        if sender == convencionalButton {
+            equipoSeleccionado = "Aire acondicionado convencional"
+        } else if sender == inverterButton {
+            equipoSeleccionado = "Aire acondicionado inverter"
+        }
+    }
+
+    /// Menú que se despliega al tocar "Otro equipo": cada opción guarda su
+    /// propio texto en `equipoSeleccionado`, tal cual como si fuera un botón
+    /// normal de la fila de arriba.
+    private func construirMenuOtroEquipo() -> UIMenu {
+        let pisoTecho = UIAction(title: "Aire acondicionado piso techo") { [weak self] _ in
+            self?.seleccionarOtroEquipo(titulo: "Aire acondicionado piso techo")
+        }
+        let paquete = UIAction(title: "Aire acondicionado de paquete") { [weak self] _ in
+            self?.seleccionarOtroEquipo(titulo: "Aire acondicionado de paquete")
+        }
+        return UIMenu(title: "¿Qué tipo de equipo es?", children: [pisoTecho, paquete])
+    }
+
+    private func seleccionarOtroEquipo(titulo: String) {
+        marcarBotonEquipoSeleccionado(otroEquipoButton)
+        equipoSeleccionado = titulo
+        otroEquipoButton.configuration?.title = titulo
+    }
+
+    /// Resalta en azul el botón de equipo elegido (sea uno fijo o una
+    /// variante de "Otro equipo") y regresa los demás a su estilo normal.
+    private func marcarBotonEquipoSeleccionado(_ sender: UIButton) {
         let botones = [convencionalButton, inverterButton, otroEquipoButton]
         botones.forEach {
             $0.layer.borderWidth = 1
@@ -327,14 +403,35 @@ class MantenimientoViewController: UIViewController {
         sender.layer.borderColor = UIColor.systemBlue.cgColor
         sender.configuration?.baseBackgroundColor = .systemBlue
         sender.configuration?.baseForegroundColor = .white
+    }
 
-        if sender == convencionalButton {
-            equipoSeleccionado = "Aire acondicionado convencional"
-        } else if sender == inverterButton {
-            equipoSeleccionado = "Aire acondicionado inverter"
-        } else if sender == otroEquipoButton {
-            equipoSeleccionado = "Otro equipo"
+    /// Menú desplegable con las capacidades sugeridas, desde media tonelada
+    /// hasta 100 toneladas.
+    private func construirMenuCapacidad() -> UIMenu {
+        let acciones = capacidadesSugeridas.map { toneladas -> UIAction in
+            let titulo = textoCapacidad(toneladas)
+            return UIAction(title: titulo) { [weak self] _ in
+                self?.seleccionarCapacidad(titulo: titulo)
+            }
         }
+        return UIMenu(title: "¿Qué capacidad es tu equipo?", children: acciones)
+    }
+
+    private func textoCapacidad(_ toneladas: Double) -> String {
+        let numero = toneladas.truncatingRemainder(dividingBy: 1) == 0
+            ? String(format: "%.0f", toneladas)
+            : String(format: "%.1f", toneladas)
+        let unidad = toneladas == 1 ? "tonelada" : "toneladas"
+        return "\(numero) \(unidad)"
+    }
+
+    private func seleccionarCapacidad(titulo: String) {
+        capacidadSeleccionada = titulo
+        capacidadButton.configuration?.title = titulo
+        capacidadButton.layer.borderWidth = 2
+        capacidadButton.layer.borderColor = UIColor.systemBlue.cgColor
+        capacidadButton.configuration?.baseBackgroundColor = .systemBlue
+        capacidadButton.configuration?.baseForegroundColor = .white
     }
 
     @objc private func seleccionarMantenimiento(_ sender: UIButton) {
@@ -384,8 +481,15 @@ class MantenimientoViewController: UIViewController {
     }
 
     @objc private func continuarAccion() {
+        guard !estaProcesandoContinuar else { return }
+
         if equipoSeleccionado == "No seleccionado" {
             mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona el tipo de equipo que tienes.")
+            return
+        }
+
+        guard let capacidad = capacidadSeleccionada else {
+            mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona la capacidad de tu equipo.")
             return
         }
 
@@ -399,13 +503,19 @@ class MantenimientoViewController: UIViewController {
             return
         }
 
-        var comentario = comentarioTextView.text ?? ""
-        if comentario == "Escribe aquí algún comentario sobre tu equipo o el servicio que necesitas..." {
-            comentario = "Sin comentarios adicionales."
-        }
+        // Se revisa el color, no el texto exacto: así, si el cliente escribe
+        // justo el mismo texto del placeholder como comentario real, no se
+        // pierde (el color ya habrá cambiado a .label al empezar a editar).
+        // También se sanean espacios en blanco: un comentario con solo
+        // espacios o saltos de línea cuenta como vacío.
+        let textoComentario = (comentarioTextView.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let comentario = (comentarioTextView.textColor == .placeholderText || textoComentario.isEmpty)
+            ? "Sin comentarios adicionales."
+            : textoComentario
 
         let solicitud = SolicitudMantenimiento(
             tipoEquipo: equipoSeleccionado,
+            capacidad: capacidad,
             tipoMantenimiento: mantenimientoSeleccionado,
             fecha: fechaPicker.date,
             hora: horarioPicker.date,
@@ -421,21 +531,25 @@ class MantenimientoViewController: UIViewController {
         let pantalla = ConfirmarSolicitudViewController(solicitud: solicitud) {
             NotificacionesManager.notificarInmediata(
                 titulo: "Solicitud recibida",
-                mensaje: "Tu solicitud de \(solicitud.tipoMantenimiento.lowercased()) fue registrada. Te contactaremos pronto."
+                mensaje: "Tu solicitud de \(solicitud.tipoMantenimiento.lowercased()) fue registrada. Te contactaremos pronto.",
+                pantalla: .misSolicitudes
             )
             NotificacionesManager.notificarInmediata(
                 titulo: "Nueva solicitud de mantenimiento",
-                mensaje: "\(SesionManager.nombreUsuarioActual) solicitó \(solicitud.tipoMantenimiento.lowercased()) para el \(fechaTexto)."
+                mensaje: "\(SesionManager.nombreUsuarioActual) solicitó \(solicitud.tipoMantenimiento.lowercased()) para el \(fechaTexto).",
+                pantalla: .admin
             )
             if let fechaCita = solicitud.fechaCita {
                 NotificacionesManager.notificarUnDiaAntes(
                     fechaCita: fechaCita,
                     titulo: "Recordatorio de mantenimiento",
-                    mensaje: "Mañana es tu \(solicitud.tipoMantenimiento.lowercased()). ¡Te esperamos!"
+                    mensaje: "Mañana es tu \(solicitud.tipoMantenimiento.lowercased()). ¡Te esperamos!",
+                    pantalla: .misSolicitudes
                 )
             }
         }
 
+        estaProcesandoContinuar = true
         navigationController?.pushViewController(pantalla, animated: true)
     }
 
@@ -443,5 +557,21 @@ class MantenimientoViewController: UIViewController {
         let alerta = UIAlertController(title: titulo, message: mensaje, preferredStyle: .alert)
         alerta.addAction(UIAlertAction(title: "Aceptar", style: .default))
         present(alerta, animated: true)
+    }
+}
+
+extension MantenimientoViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .placeholderText {
+            textView.text = ""
+            textView.textColor = .label
+        }
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = comentarioPlaceholder
+            textView.textColor = .placeholderText
+        }
     }
 }

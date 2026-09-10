@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseCore
+import FirebaseAuth
 import UserNotifications
 
 @main
@@ -28,6 +29,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.banner, .sound, .badge])
+    }
+
+    /// Se dispara cuando el usuario toca una notificación (con la app en
+    /// segundo plano, cerrada, o en primer plano). Lee la pantalla guardada
+    /// en `userInfo` (ver `NotificacionesManager`) y navega ahí, siempre que
+    /// todavía haya una sesión activa.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        defer { completionHandler() }
+
+        guard
+            let valor = response.notification.request.content.userInfo[NotificacionesManager.clavePantalla] as? String,
+            let pantalla = NotificacionesManager.Pantalla(rawValue: valor)
+        else { return }
+
+        navegarDesdeNotificacion(hacia: pantalla)
+    }
+
+    private func navegarDesdeNotificacion(hacia pantalla: NotificacionesManager.Pantalla) {
+        guard
+            Auth.auth().currentUser != nil,
+            let escenaVentana = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let navegacion = escenaVentana.windows.first(where: \.isKeyWindow)?.rootViewController as? UINavigationController
+        else { return }
+
+        switch pantalla {
+        case .misSolicitudes:
+            navegacion.pushViewController(MisSolicitudesViewController(), animated: true)
+        case .admin:
+            guard AdminConfig.esAdmin(correo: Auth.auth().currentUser?.email) else { return }
+            navegacion.pushViewController(AdminViewController(), animated: true)
+        }
     }
 
     // MARK: UISceneSession Lifecycle

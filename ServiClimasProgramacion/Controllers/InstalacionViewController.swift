@@ -10,9 +10,7 @@ class InstalacionViewController: UIViewController {
     let descripcionLabel = UILabel()
 
     let capacidadLabel = UILabel()
-    let capacidad1Button = UIButton(type: .system)
-    let capacidad2Button = UIButton(type: .system)
-    let capacidad3Button = UIButton(type: .system)
+    let capacidadButton = UIButton(type: .system)
 
     let lugarLabel = UILabel()
     let casaButton = UIButton(type: .system)
@@ -36,11 +34,24 @@ class InstalacionViewController: UIViewController {
     var pisoSeleccionado: String?
     var metodoPagoSeleccionado: MetodoPago?
 
+    /// Opciones sugeridas de capacidad, en toneladas de refrigeración,
+    /// desde equipos residenciales chicos (1 tonelada) hasta equipos
+    /// industriales grandes (50 toneladas).
+    private let capacidadesSugeridas: [Int] = Array(1...50)
+
+    /// Evita que un doble toque empuje la pantalla de confirmación dos veces.
+    private var estaProcesandoContinuar = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarPantalla()
         configurarElementos()
         configurarLayout()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        estaProcesandoContinuar = false
     }
 
     private func configurarPantalla() {
@@ -69,12 +80,9 @@ class InstalacionViewController: UIViewController {
 
         capacidadLabel.text = "¿Qué capacidad necesitas?"
         configurarLabel(capacidadLabel)
-        configurarBoton(capacidad1Button, titulo: "1 tonelada", icono: "snowflake")
-        configurarBoton(capacidad2Button, titulo: "2 toneladas", icono: "snowflake")
-        configurarBoton(capacidad3Button, titulo: "3 toneladas", icono: "snowflake")
-        [capacidad1Button, capacidad2Button, capacidad3Button].forEach {
-            $0.addTarget(self, action: #selector(seleccionarCapacidad), for: .touchUpInside)
-        }
+        configurarBoton(capacidadButton, titulo: "Selecciona la capacidad", icono: "gauge")
+        capacidadButton.menu = construirMenuCapacidad()
+        capacidadButton.showsMenuAsPrimaryAction = true
 
         lugarLabel.text = "¿Qué tipo de lugar es?"
         configurarLabel(lugarLabel)
@@ -125,7 +133,7 @@ class InstalacionViewController: UIViewController {
 
         let subviews = [
             regresarButton, tituloLabel, descripcionLabel,
-            capacidadLabel, capacidad1Button, capacidad2Button, capacidad3Button,
+            capacidadLabel, capacidadButton,
             lugarLabel, casaButton, negocioButton,
             pisoLabel, primerPisoButton, segundoPisoButton,
             fechaLabel, datePicker,
@@ -179,7 +187,7 @@ class InstalacionViewController: UIViewController {
     private func configurarLayout() {
         let elementos = [
             scrollView, contenidoView, regresarButton, tituloLabel, descripcionLabel,
-            capacidadLabel, capacidad1Button, capacidad2Button, capacidad3Button,
+            capacidadLabel, capacidadButton,
             lugarLabel, casaButton, negocioButton,
             pisoLabel, primerPisoButton, segundoPisoButton,
             fechaLabel, datePicker,
@@ -215,22 +223,12 @@ class InstalacionViewController: UIViewController {
             capacidadLabel.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
             capacidadLabel.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
 
-            capacidad1Button.topAnchor.constraint(equalTo: capacidadLabel.bottomAnchor, constant: 14),
-            capacidad1Button.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
-            capacidad1Button.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
-            capacidad1Button.heightAnchor.constraint(equalToConstant: 58),
+            capacidadButton.topAnchor.constraint(equalTo: capacidadLabel.bottomAnchor, constant: 14),
+            capacidadButton.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
+            capacidadButton.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
+            capacidadButton.heightAnchor.constraint(equalToConstant: 58),
 
-            capacidad2Button.topAnchor.constraint(equalTo: capacidad1Button.bottomAnchor, constant: 10),
-            capacidad2Button.leadingAnchor.constraint(equalTo: capacidad1Button.leadingAnchor),
-            capacidad2Button.trailingAnchor.constraint(equalTo: capacidad1Button.trailingAnchor),
-            capacidad2Button.heightAnchor.constraint(equalToConstant: 58),
-
-            capacidad3Button.topAnchor.constraint(equalTo: capacidad2Button.bottomAnchor, constant: 10),
-            capacidad3Button.leadingAnchor.constraint(equalTo: capacidad1Button.leadingAnchor),
-            capacidad3Button.trailingAnchor.constraint(equalTo: capacidad1Button.trailingAnchor),
-            capacidad3Button.heightAnchor.constraint(equalToConstant: 58),
-
-            lugarLabel.topAnchor.constraint(equalTo: capacidad3Button.bottomAnchor, constant: 28),
+            lugarLabel.topAnchor.constraint(equalTo: capacidadButton.bottomAnchor, constant: 28),
             lugarLabel.leadingAnchor.constraint(equalTo: tituloLabel.leadingAnchor),
             lugarLabel.trailingAnchor.constraint(equalTo: tituloLabel.trailingAnchor),
 
@@ -291,15 +289,24 @@ class InstalacionViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
 
-    @objc private func seleccionarCapacidad(_ sender: UIButton) {
-        marcarSeleccion(sender, entre: [capacidad1Button, capacidad2Button, capacidad3Button])
-        if sender == capacidad1Button {
-            capacidadSeleccionada = "1 tonelada"
-        } else if sender == capacidad2Button {
-            capacidadSeleccionada = "2 toneladas"
-        } else {
-            capacidadSeleccionada = "3 toneladas"
+    /// Menú desplegable con las capacidades sugeridas, de 1 a 50 toneladas.
+    private func construirMenuCapacidad() -> UIMenu {
+        let acciones = capacidadesSugeridas.map { toneladas -> UIAction in
+            let titulo = toneladas == 1 ? "1 tonelada" : "\(toneladas) toneladas"
+            return UIAction(title: titulo) { [weak self] _ in
+                self?.seleccionarCapacidad(titulo: titulo)
+            }
         }
+        return UIMenu(title: "¿Qué capacidad necesitas?", children: acciones)
+    }
+
+    private func seleccionarCapacidad(titulo: String) {
+        capacidadSeleccionada = titulo
+        capacidadButton.configuration?.title = titulo
+        capacidadButton.layer.borderWidth = 2
+        capacidadButton.layer.borderColor = UIColor.systemBlue.cgColor
+        capacidadButton.configuration?.baseBackgroundColor = .systemBlue
+        capacidadButton.configuration?.baseForegroundColor = .white
     }
 
     @objc private func seleccionarLugar(_ sender: UIButton) {
@@ -318,6 +325,8 @@ class InstalacionViewController: UIViewController {
     }
 
     @objc private func continuarAccion() {
+        guard !estaProcesandoContinuar else { return }
+
         guard let capacidad = capacidadSeleccionada else {
             mostrarAlerta(titulo: "Falta seleccionar", mensaje: "Selecciona la capacidad del equipo.")
             return
@@ -347,15 +356,18 @@ class InstalacionViewController: UIViewController {
             NotificacionesManager.notificarUnDiaAntes(
                 fechaCita: solicitud.fechaHoraCita,
                 titulo: "Recordatorio de instalación",
-                mensaje: "Mañana es tu instalación de \(solicitud.capacidad). ¡Te esperamos!"
+                mensaje: "Mañana es tu instalación de \(solicitud.capacidad). ¡Te esperamos!",
+                pantalla: .misSolicitudes
             )
             NotificacionesManager.notificarUnDiaAntes(
                 fechaCita: solicitud.fechaHoraCita,
                 titulo: "Instalación agendada",
-                mensaje: "\(SesionManager.nombreUsuarioActual) tiene una instalación (\(solicitud.capacidad)) mañana."
+                mensaje: "\(SesionManager.nombreUsuarioActual) tiene una instalación (\(solicitud.capacidad)) mañana.",
+                pantalla: .admin
             )
         }
 
+        estaProcesandoContinuar = true
         navigationController?.pushViewController(pantalla, animated: true)
     }
 
