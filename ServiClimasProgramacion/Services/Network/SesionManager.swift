@@ -21,18 +21,25 @@ enum SesionManager {
         contrasena: String,
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
+        print("🆕 [SesionManager] registrar -> creando cuenta en Firebase Auth para \(correo)")
+
         Auth.auth().createUser(withEmail: correo, password: contrasena) { resultado, error in
             if let error {
+                logError("registrar (createUser)", correo: correo, error: error)
                 completion(.failure(error))
                 return
             }
+
+            print("🆕 [SesionManager] registrar -> cuenta creada (uid: \(resultado?.user.uid ?? "?")), guardando nombre de perfil")
 
             let cambioPerfil = resultado?.user.createProfileChangeRequest()
             cambioPerfil?.displayName = nombre
             cambioPerfil?.commitChanges { errorPerfil in
                 if let errorPerfil {
+                    logError("registrar (commitChanges)", correo: correo, error: errorPerfil)
                     completion(.failure(errorPerfil))
                 } else {
+                    print("🆕 [SesionManager] registrar -> perfil actualizado correctamente para \(correo)")
                     completion(.success(()))
                 }
             }
@@ -66,13 +73,38 @@ enum SesionManager {
 
     /// Manda el correo real de verificación de Firebase a la cuenta actual.
     static func enviarVerificacionCorreo(completion: @escaping (Result<Void, Error>) -> Void) {
-        Auth.auth().currentUser?.sendEmailVerification { error in
+        guard let usuario = Auth.auth().currentUser else {
+            print("✉️ [SesionManager] enviarVerificacionCorreo -> no hay currentUser, no se puede enviar")
+            completion(.failure(errorSinSesion()))
+            return
+        }
+
+        let correo = usuario.email ?? "(sin correo)"
+        print("✉️ [SesionManager] enviarVerificacionCorreo -> pidiendo a Firebase que envíe el correo a \(correo) (uid: \(usuario.uid))")
+
+        usuario.sendEmailVerification { error in
             if let error {
+                logError("enviarVerificacionCorreo", correo: correo, error: error)
                 completion(.failure(error))
             } else {
+                print("✉️ [SesionManager] enviarVerificacionCorreo -> Firebase ACEPTÓ la solicitud para \(correo). Si no llega, revisa spam/promociones y la plantilla en Firebase Console.")
                 completion(.success(()))
             }
         }
+    }
+
+    /// Log uniforme con todos los datos del error para poder diagnosticar
+    /// correos que "no llegan" (casi siempre es un error silencioso de
+    /// Firebase — cuota, demasiados intentos, o red — que nunca se mostró).
+    private static func logError(_ operacion: String, correo: String, error: Error) {
+        let nsError = error as NSError
+        print("""
+        ❌ [SesionManager] \(operacion) FALLÓ para \(correo)
+           dominio: \(nsError.domain)
+           código: \(nsError.code) (\(String(describing: AuthErrorCode(rawValue: nsError.code))))
+           descripción: \(nsError.localizedDescription)
+           userInfo: \(nsError.userInfo)
+        """)
     }
 
     /// Refresca los datos de la cuenta actual para saber si ya se confirmó el correo.

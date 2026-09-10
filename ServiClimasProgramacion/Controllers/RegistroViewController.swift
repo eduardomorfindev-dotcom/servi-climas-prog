@@ -299,18 +299,29 @@ class RegistroViewController: UIViewController, UITextFieldDelegate {
             case .success:
                 BaseDatosManager.guardarUsuario(nombre: nombre, correo: correo, telefono: telefono, direccion: direccion)
 
-                SesionManager.enviarVerificacionCorreo { resultadoCorreo in
-                    if case .failure(let error) = resultadoCorreo {
-                        self.mostrarAlerta(
-                            titulo: "No se pudo enviar el correo de verificación",
-                            mensaje: SesionManager.mensajeError(error)
-                        )
-                    }
-                }
-
                 let verificacionVC = VerificacionViewController()
                 verificacionVC.correoUsuario = correo
                 self.navigationController?.pushViewController(verificacionVC, animated: true)
+
+                // OJO: este completion llega DESPUÉS del push de arriba, así que
+                // la pantalla visible para entonces ya es verificacionVC, no
+                // self. Antes esto presentaba la alerta sobre self (que ya no
+                // estaba en pantalla) y el error quedaba invisible para el
+                // cliente — parecía que el correo "no llegaba" cuando en
+                // realidad Firebase sí devolvía un error (cuota, red, etc.)
+                // que nadie veía.
+                SesionManager.enviarVerificacionCorreo { resultadoCorreo in
+                    guard case .failure(let error) = resultadoCorreo else { return }
+                    DispatchQueue.main.async {
+                        let alerta = UIAlertController(
+                            title: "No se pudo enviar el correo de verificación",
+                            message: SesionManager.mensajeError(error),
+                            preferredStyle: .alert
+                        )
+                        alerta.addAction(UIAlertAction(title: "Aceptar", style: .default))
+                        (self.navigationController?.topViewController ?? self).present(alerta, animated: true)
+                    }
+                }
             case .failure(let error):
                 self.mostrarAlerta(titulo: "No se pudo crear la cuenta", mensaje: SesionManager.mensajeError(error))
             }
